@@ -5,7 +5,7 @@
 <link rel="icon" href="favicon.ico" type="image/x-icon">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.gstatic.com https://*.justout.today; frame-src https://accounts.google.com https://*.firebaseapp.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.gstatic.com; frame-src https://accounts.google.com https://*.firebaseapp.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <title>Helpdesk — FPCS Project Tracker</title>
 <link rel="stylesheet" href="css/core.css">
 <link rel="stylesheet" href="css/nav.css">
@@ -696,7 +696,22 @@ function startFirestoreListener() {
       // Build tickets array from Firestore docs
       var firestoreTickets = [];
       snapshot.forEach(function(doc) {
-        firestoreTickets.push(doc.data());
+        var d = doc.data();
+        // Map Firestore field names to UI field names
+        firestoreTickets.push({
+          id: d.id || doc.id,
+          title: d.title || '',
+          type: d.type || 'Task',
+          priority: d.priority || 'Medium',
+          status: d.status || 'New',
+          assignee: d.assignee || d.assignedTo || 'Unassigned',
+          category: d.category || 'Other',
+          tags: d.tags || [],
+          desc: d.desc || d.description || '',
+          created: d.created || '',
+          updated: d.updated || '',
+          comments: d.comments || []
+        });
       });
 
       // Replace in-memory tickets with Firestore data
